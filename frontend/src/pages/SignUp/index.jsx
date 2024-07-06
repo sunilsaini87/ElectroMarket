@@ -5,40 +5,52 @@ import axios from "axios";
 import Footer from "../../components/Footer";
 import HomepageHeader from "../../components/HomepageHeader";
 import { useAuthContext } from "../../Context/AuthContext";
-import toast from "react-hot-toast";
-import { backend_route } from "../../config";
 
 export default function SignUpPage() {
-  const [data, setData] = useState({
+  const [userData, setUserData] = useState({
     UserName: "",
     Email: "",
     Password: "",
   });
-  const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
 
- const {login} = useAuthContext();
+  const changeInputHandler = (e) => {
+    setUserData({ ...userData, [e.target.name]: e.target.value });
+    setStatusMessage("");
+    setIsSuccess(false);
+  };
+
+  const { login } = useAuthContext();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!data.Email.includes("@sliet.ac.in")){
-        toast.error("Signup with your SLIET's Email-Id")
-        return;
-    }
+
     try {
-      const url = `${backend_route}/user/signup`;
-      const response  = await axios.post(url, data);
-      login(response.data.token,response.data.user);
-      toast.success("Signed Up Successfully.")
+      const response = await axios.post(
+        `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/signup`,
+        {
+          UserName: userData.UserName,
+          Email: userData.Email,
+          Password: userData.Password,
+        }
+      );
+
+      setIsSuccess(true);
+      setStatusMessage("Registration successful");
+      login(response.data.token, response.data.user);
       navigate("/");
     } catch (error) {
-      if (
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status <= 500
-      ) {
-        setError(error.response.data.message);
+      setIsSuccess(false);
+      if (error.response) {
+        setStatusMessage(error.response.data.msg || "An error occurred");
+      } else if (error.request) {
+        setStatusMessage("No response from the server. Please try again.");
+      } else {
+        setStatusMessage("An error occurred. Please try again.");
       }
+      console.error("Error during signup:", error);
     }
   };
 
@@ -58,7 +70,7 @@ export default function SignUpPage() {
             >
               <img
                 className="w-8 h-8 mr-2"
-                src="\public\assets\Electromarket.svg"
+                src="/ElectroMarket.svg"
                 alt="logo"
               />
               ElectroMarket
@@ -68,73 +80,69 @@ export default function SignUpPage() {
                 <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                   Create an account
                 </h1>
+
+                {statusMessage && (
+                  <p
+                    className={`${
+                      isSuccess ? "text-green-500" : "text-red-500"
+                    } text-lg italic mb-4`}
+                  >
+                    {statusMessage}
+                  </p>
+                )}
+
                 <form
                   className="space-y-4 md:space-y-6"
                   onSubmit={handleSubmit}
-                  action="#"
                 >
                   <div>
                     <label
-                      htmlFor="username"
+                      htmlFor="UserName"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Username
                     </label>
                     <input
                       type="text"
-                      name="username"
-                      onChange={(e)=>{
-
-                        setData({...data,UserName:e.target.value})
-                      }}
-                      id="username"
+                      name="UserName"
+                      onChange={changeInputHandler}
                       placeholder="Username"
-                      value={data.UserName}
+                      value={userData.UserName}
                       className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      required=""
                     />
                   </div>
 
                   <div>
                     <label
-                      htmlFor="email"
+                      htmlFor="Email"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Your Email
                     </label>
                     <input
                       type="email"
-                      name="email"
-                      id="email"
-                      value={data.Email}
-                      onChange={(e)=>{
-
-                        setData({...data,Email:e.target.value})
-                      }}
+                      name="Email"
+                      id="Email"
+                      value={userData.Email}
+                      onChange={changeInputHandler}
                       className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="name@company.com"
-                      required
+                      placeholder="email"
                     />
                   </div>
                   <div>
                     <label
-                      htmlFor="password"
+                      htmlFor="Password"
                       className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
                       Password
                     </label>
                     <input
                       type="password"
-                      name="password"
-                      id="password"
+                      name="Password"
                       placeholder="••••••••"
-                      onChange={(e)=>{
-
-                        setData({...data,Password:e.target.value})
-                      }}
-                      value={data.Password}
+                      onChange={changeInputHandler}
+                      value={userData.Password}
                       className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      required=""
                     />
                   </div>
 
@@ -145,7 +153,6 @@ export default function SignUpPage() {
                         aria-describedby="terms"
                         type="checkbox"
                         className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                        required=""
                       />
                     </div>
                     <div className="ml-3 text-sm">
@@ -163,7 +170,7 @@ export default function SignUpPage() {
                       </label>
                     </div>
                   </div>
-                  {error && <div>{error}</div>}
+
                   <button
                     type="submit"
                     className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"

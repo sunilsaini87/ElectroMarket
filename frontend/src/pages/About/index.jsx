@@ -54,12 +54,12 @@ function About() {
           <div className="grid grid-cols-2 gap-4 mt-8">
             <img
               className="w-full rounded-lg"
-              src="\public\Images\aa.jpeg"
+              src="/aa.jpeg"
               alt="ElectroMarket user interface"
             />
             <img
               className="mt-4 w-full lg:mt-10 rounded-lg"
-              src="\public\Images\bb.png"
+              src="/bb.png"
               alt="ElectroMarket customer support"
             />
           </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -6,16 +6,16 @@ import Footer from "../../components/Footer";
 import HomepageHeader from "../../components/HomepageHeader";
 import { useAuthContext } from "../../Context/AuthContext";
 import toast from "react-hot-toast";
-import { backend_route } from "../../config";
+// import { backend_route } from "../../config";
 
 export default function SignUpPageAdmin() {
-  const [phoneNumber, setPhoneNumber] = useState("+91");
+  // const [PhoneNumber, setPhoneNumber] = useState("+91");
 
   const [data, setData] = useState({
     AdminName: "",
     Email: "",
     Password: "",
-    PhoneNumber: "",
+    PhoneNumber: "+91",
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -28,17 +28,16 @@ export default function SignUpPageAdmin() {
       toast.error("Signup with your SLIET's Email-Id");
       return;
     }
-    if(isNaN(data.PhoneNumber) || data.PhoneNumber.length!==10){
-      toast.error("Not a number")
-      return ;
-    };
-    
-   
+    if (isNaN(data.PhoneNumber) || data.PhoneNumber.length !== 10) {
+      toast.error("Not a number");
+      return;
+    }
+
     try {
-      const url = `${backend_route}/admin/signup`;
+      const url = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/admin/signup`;
       const response = await axios.post(url, data);
       toast.success("Signed up successfully.");
-      login(response.data.token,response.data.admin);
+      login(response.data.token, response.data.admin);
       navigate("/admin/createproduct");
     } catch (error) {
       if (
@@ -67,7 +66,7 @@ export default function SignUpPageAdmin() {
             >
               <img
                 className="w-8 h-8 mr-2"
-                src="\public\assets\Electromarket.svg"
+                src="/ElectroMarket.svg"
                 alt="logo"
               />
               ElectroMarket
@@ -119,7 +118,7 @@ export default function SignUpPageAdmin() {
                       }}
                       id="email"
                       className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="name@company.com"
+                      placeholder="email"
                       required=""
                     />
                   </div>
@@ -143,7 +142,6 @@ export default function SignUpPageAdmin() {
                       `}
                       required=""
                     />
-                   
                   </div>
 
                   <div>
